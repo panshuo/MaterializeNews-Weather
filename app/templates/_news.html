@@ -1,0 +1,31 @@
+{% for article in articles %}
+    <div class="col s12">
+    {% if article.news_agency == 'BBC' %}
+        <div class="card">
+            <div class="card-image waves-effect waves-block waves-light">
+                <img class="activator" src="{{ article.media_thumbnail }}">
+            </div>
+            <div class="card-content">
+                <span class="card-title activator grey-text text-darken-4">{{ article.title }}<i class="material-icons right">more_vert</i></span>
+                <p><a href="{{ article.link }}">For More Information @{{ article.news_agency }} Click Here</a></p>
+            </div>
+            <div class="card-reveal">
+                <span class="card-title grey-text text-darken-4">{{ article.title }}<i class="material-icons right">close</i></span>
+                <p>{{ article.summary }}</p>
+            </div>
+        </div>
+    {% endif %}
+    {% if article.news_agency == 'ABC Top Stories' or article.news_agency == 'ABC Tech Headlines' %}
+        <div class="card white">
+            <div class="card-content">
+              <span class="card-title">{{ article.title }}</span>
+              <p>{{ article.summary }}</p>
+            </div>
+            <div class="card-action">
+              <a href="{{ article.link }}">For More Information <span class="blue-text">@{{ article.news_agency }} Click Here</span></a>
+            </div>
+          </div>
+    {% endif %}
+    </div>
+{% endfor %}
+

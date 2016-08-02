@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block styles %}
+    {{ super() }}
+    <style>
+        #slider {margin-bottom: 5px;}
+        #weather {margin-top: 5px;}
+        #pagination {margin-top: 5px;}
+        #slider {margin-top: 2px;}
+    </style>
+{% endblock styles %}
+{% block title %}Weather & News{% endblock title %}
+{% block content -%}
+    <div class="container">
+        <div class="row">
+            <div class="col s12" id="slider">
+                {% include '_slider.html' %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m4" id="weather">
+                {% include '_weather.html' %}
+                <div class="row">
+                    <div class="col s12">
+                        <div class="zhihu-card" data-userhash="8f544d4d0a18d70dea20f9f09b7dd894"></div>
+                        <script src="//cdn.jsdelivr.net/zhihu-card/latest/widget.js"></script>
+                    </div>
+                </div>
+            </div>
+            {% block news %}
+                <div class="col s12 m7">
+                    <div class="col s12" id="pagination">
+                        {% if pagination %}
+                            <p class="center-align">{{ macros.pagination_widget(pagination, '.index') }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col s12" id="news">
+                        {% include '_news.html' %}
+                    </div>
+                </div>
+            {% endblock news %}
+        </div>
+    </div>
+{%- endblock content %}
+{% block scripts %}
+    {{  super() }}
+    <script>
+        $(".button-collapse").sideNav();
+        $(document).ready(function() {
+            $('.slider').slider({full_width: true});
+            $('.collection-header').addClass('animated slideInDown');
+            $('.collection-item').addClass('animated slideInUp');
+            $('ul.tabs').tabs();
+            $('ul.tabs').tabs('select_tab', 'tab_id');
+        });
+    </script>
+{%- endblock scripts %}

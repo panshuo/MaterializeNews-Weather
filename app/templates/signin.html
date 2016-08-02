@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <form class="col s12 m6" method="post" action="" role="form">
+                {{ form.csrf_token }}
+                <div class="input-field col s12">
+                    {{ form.email(placeholder="电子邮箱") }}
+                </div>
+                <div class="input-field col s12">
+                    {{ form.password(placeholder="密码") }}
+                </div>
+                <div class="form-group  required">
+                    {{ form.submit(class_="btn btn-default green") }}
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+{% block footer %}
+    {{ super() }}
+{% endblock footer %}

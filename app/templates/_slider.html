@@ -1,0 +1,14 @@
+<div class="slider">
+    <ul class="slides">
+        {% for slides in slider %}
+        <li>
+            <a href="{{ slides.link }}">
+                <img src="{{ slides.media_thumbnail }}"> <!-- random image -->
+                <div class="caption center-align">
+                    <h4>{{ slides.title }}</h4>
+                </div>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>

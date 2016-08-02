@@ -1,0 +1,105 @@
+{% block doc -%}
+    <!DOCTYPE html>
+    <html>
+    {% block html_attribs %}{% endblock html_attribs %}
+    {%- block html %}
+
+        <head>
+            {%- block head %}
+                <title>{% block title %}{% endblock title %}</title>
+
+                {%- block metas %}
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8"/>
+                {%- endblock metas %}
+
+                {%- block styles %}
+                    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+                    <link href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}" rel="stylesheet">
+                    <link href="{{ url_for('static', filename='animate.css') }}" rel="stylesheet">
+                    <style>
+                        body {
+                            display: flex;
+                            min-height: 100vh;
+                            flex-direction: column;
+                        }
+
+                        main {
+                            flex: 1 0 auto;
+                        }
+                    </style>
+                {%- endblock styles %}
+            {%- endblock head %}
+        </head>
+
+        <body>
+        {% block body_attribs %}{% endblock body_attribs %}
+        {% block body -%}
+
+            <header>
+                {% block navbar %}
+                    <div class="navbar-fixed z-depth-1">
+                    <nav>
+                        <div class="nav-wrapper red accent-4">
+                            <div class="container">
+                                <a href="/" class="brand-logo"><h5 class="animated flipInX">Weather & News</h5></a>
+                                <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+                                <ul class="right hide-on-med-and-down">
+                                    {% if current_user.is_authenticated %}
+                                        <li><a href="#">Profile</a> </li>
+                                        <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
+                                    {% else %}
+                                        <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
+                                    {% endif %}
+                                </ul>
+                                <ul class="side-nav" id="mobile-demo">
+                                    {% if current_user.is_authenticated %}
+                                        <li><a href="#">Profile</a> </li>
+                                        <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
+                                    {% else %}
+                                        <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                    </div>
+                {%- endblock navbar %}
+            </header>
+
+            <main>
+            {% block content -%}
+            {% endblock content %}
+            </main>
+
+            {% block footer %}
+                <footer class="page-footer red accent-4">
+                    <div class="footer-copyright">
+                        <div class="container">
+                            Powered by Pyhton Flask + Materialize CSS © 2016 Copyright teteol.top
+                        </div>
+                    </div>
+                </footer>
+            {% endblock footer %}
+
+            {% block fixedbutton %}
+                <div class="fixed-action-btn horizontal" style="bottom: 80px; right: 24px;">
+                    <a class="btn-floating btn-large yellow">
+                        <i class="material-icons">menu</i>
+                    </a>
+                    <ul>
+                        <li><a class="btn-floating blue" href="/signup"><i class="material-icons">perm_identity</i></a></li>
+                        <li><a class="btn-floating green" href="/fetchnews" onclick="Materialize.toast('Fetching News...', 10000)"><i class="material-icons">loop</i></a></li>
+                    </ul>
+                </div>
+            {% endblock fixedbutton %}
+
+            {% block scripts %}
+                <script src="{{ url_for('static', filename='materialize/js/jquery.min.js') }}"></script>
+                <script src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+            {%- endblock scripts %}
+
+        {%- endblock body %}
+        </body>
+    {%- endblock html %}
+    </html>
+{% endblock doc -%}
