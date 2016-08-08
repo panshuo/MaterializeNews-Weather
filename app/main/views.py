@@ -31,7 +31,6 @@ def index():
     slider = []
     for news in selected_news:
         slider.append(News.query.filter_by(id=news).first())
-    print slider
 
     # 分页部分
     page = request.args.get('page', 1, type=int)

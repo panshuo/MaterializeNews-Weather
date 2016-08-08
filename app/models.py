@@ -21,10 +21,37 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role')
 
     def __repr__(self):
         return 'Role {0}'.format(self.name)
+
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'Administrator': (0xff, False),
+            'Moderator': (Permission.FOLLOW | Permission.COMMENT | Permission.MODIFY, False),
+            'User': (Permission.FOLLOW | Permission.COMMENT, True)
+        }
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role = Role(name=r)
+            role.permissions = roles[r][0]
+            role.default = roles[r][1]
+            db.session.add(role)
+        db.session.commit()
+
+
+# 权限常量
+class Permission:
+    FOLLOW = 0x01
+    COMMENT = 0x02
+    MODIFY = 0x04
+    FETCH_NEWS = 0x08
+    ADMINISTER = 0x80
 
 
 # 定义用户模型
@@ -57,7 +84,7 @@ class User(UserMixin, db.Model):
         db.session.add(self)
 
     def __repr__(self):
-        return 'User {0}'.format(self.username)
+        return u'User {0}'.format(self.username)
 
 
 # 存储获取的新闻网站RSS文章
