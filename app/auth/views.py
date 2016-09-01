@@ -12,7 +12,7 @@ from googleapiclient.discovery import build
 import httplib2, json, socks
 from httplib2 import ProxyInfo
 
-flow = client.flow_from_clientsecrets('/home/peter16/MaterializeNews-Weather-Google/client_secret.json',
+flow = client.flow_from_clientsecrets('/home/peter16/MaterializeNews-Weather/client_secret.json',
                                       scope = 'profile',
                                       redirect_uri = 'http://tetewechat.ngrok.cc/googleoauth2'
                                       )
@@ -25,13 +25,9 @@ def signin():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
+            flash(u'Welcome Back!')
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(u'用户名或者密码错误。')
-    # if form_up.validate_on_submit():
-    #     new_user = User(email=form_up.email.data, username=form_up.username.data, password=form_up.password.data)
-    #     db.session.add(new_user)
-    #     flash(u'注册成功，现在可以登录了。')
-    #     return redirect(url_for('auth.signin'))
     auth_uri = flow.step1_get_authorize_url()
     return render_template('signin.html', form=form, auth_uri=auth_uri)
 

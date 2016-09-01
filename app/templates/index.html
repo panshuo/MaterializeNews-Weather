@@ -49,6 +49,16 @@
 {% block scripts %}
     {{  super() }}
     <script>
+    {% block scripts %}
+    {{  super() }}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                Materialize.toast('{{ message }}', 10000)
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+{% endblock scripts %}
         $(".button-collapse").sideNav();
         $(document).ready(function() {
             $('.slider').slider({full_width: true});

@@ -3,7 +3,12 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <p><a href="{{ auth_uri }}">使用谷歌帐号登录</a></p>
+            <div class="col s12 center-align" style="margin-top: 15px;">
+                {% include '_flashed_messages.html' %}
+            </div>
+            <div class="col s12 center-align">
+                <p><a href="{{ auth_uri }}">使用谷歌帐号登录</a></p>
+            </div>
             <form class="col s12 m6" method="post" action="" role="form">
                 {{ form.csrf_token }}
                 <div class="input-field col s12">
@@ -19,6 +24,20 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block scripts %}
+    {{  super() }}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <script>
+                    Materialize.toast('{{ message }}', 10000)
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+{% endblock scripts %}
+
 {% block footer %}
     {{ super() }}
 {% endblock footer %}
