@@ -8,3 +8,7 @@
 data-dev.sqlite
 dist
 build
+sunny
+/migrations
+
+

@@ -3,6 +3,7 @@
 {% block content %}
     <div class="container">
         <div class="row">
+            <p><a href="{{ auth_uri }}">使用谷歌帐号登录</a></p>
             <form class="col s12 m6" method="post" action="" role="form">
                 {{ form.csrf_token }}
                 <div class="input-field col s12">

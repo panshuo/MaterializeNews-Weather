@@ -5,12 +5,14 @@ from flask import abort
 from flask.ext.login import current_user
 from .. import db
 from ..models import User, News, Weather
+from ..decorators import admin_required, permission_required
 from . import main
 from flask.ext.login import login_required
 from .forms import EditProfileForm, FetchNewsForm
 from sqlalchemy import desc
 from datetime import datetime as dt
 from random import sample
+from hashlib import md5
 
 
 # 首页
@@ -65,10 +67,10 @@ def fetch_news():
 # 用户个人页面
 @main.route('/user/<username>')
 def user(username):
-    user_profile = User.query.filter_by(username=username).first()
-    if user_profile is None:
+    user = User.query.filter_by(username=username).first()
+    if user is None:
         abort(404)
-    return render_template('user.html', user=user_profile)
+    return render_template('user.html', user=user)
 
 
 # 编辑用户个人资料页面
@@ -77,7 +79,11 @@ def user(username):
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
+        avatar_filename = md5(current_user.email).hexdigest() + form.avatar.data.filename.strip('.')[-1]
+        print avatar_filename
+        form.avatar.data.save('app/static/avatar/' + avatar_filename)
         current_user.name = form.name.data
+        current_user.avatar = avatar_filename
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
         db.session.add(current_user)
@@ -87,3 +93,10 @@ def edit_profile():
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', form=form)
+
+
+@main.route('/edit-profile-admin', methods=["GET", "POST"])
+@login_required
+@admin_required
+def edit_profile_admin():
+    pass

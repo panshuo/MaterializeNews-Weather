@@ -9,12 +9,14 @@
                 <title>{% block title %}{% endblock title %}</title>
 
                 {%- block metas %}
+                    <meta property="wb:webmaster" content="157ffd4eda10a0fd" />
                     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8"/>
                 {%- endblock metas %}
 
                 {%- block styles %}
                     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
                     <link href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}" rel="stylesheet">
+                    <link href="{{ url_for('static', filename='font-awesome.min.css') }}" rel="stylesheet">
                     <link href="{{ url_for('static', filename='animate.css') }}" rel="stylesheet">
                     <style>
                         body {
@@ -38,37 +40,39 @@
             <header>
                 {% block navbar %}
                     <div class="navbar-fixed z-depth-1">
-                    <nav>
-                        <div class="nav-wrapper red accent-4">
-                            <div class="container">
-                                <a href="/" class="brand-logo"><h5 class="animated flipInX">Weather & News</h5></a>
-                                <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
-                                <ul class="right hide-on-med-and-down">
-                                    {% if current_user.is_authenticated %}
-                                        <li><a href="#">Profile</a> </li>
-                                        <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
-                                    {% else %}
-                                        <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
-                                    {% endif %}
-                                </ul>
-                                <ul class="side-nav" id="mobile-demo">
-                                    {% if current_user.is_authenticated %}
-                                        <li><a href="#">Profile</a> </li>
-                                        <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
-                                    {% else %}
-                                        <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
-                                    {% endif %}
-                                </ul>
+                        <nav>
+                            <div class="nav-wrapper indigo darken-1">
+                                <div class="container">
+                                    <a href="/" class="brand-logo"><h5 class="animated flipInX">Weather & News</h5></a>
+                                    <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+                                    <ul class="right hide-on-med-and-down">
+                                        {% if current_user.is_authenticated %}
+                                            <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a> </li>
+                                            <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
+                                        {% else %}
+                                            <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
+                                            <li><a href="{{ url_for('auth.signup') }}">Sign Up</a></li>
+                                        {% endif %}
+                                    </ul>
+                                    <ul class="side-nav" id="mobile-demo">
+                                        {% if current_user.is_authenticated %}
+                                            <li><a href="#">Profile</a> </li>
+                                            <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
+                                        {% else %}
+                                            <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
+                                            <li><a href="{{ url_for('auth.signup') }}">Sign Up</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                    </nav>
+                        </nav>
                     </div>
                 {%- endblock navbar %}
             </header>
 
             <main>
-            {% block content -%}
-            {% endblock content %}
+                {% block content -%}
+                {% endblock content %}
             </main>
 
             {% block footer %}
@@ -84,11 +88,16 @@
             {% block fixedbutton %}
                 <div class="fixed-action-btn horizontal" style="bottom: 80px; right: 24px;">
                     <a class="btn-floating btn-large yellow">
-                        <i class="material-icons">menu</i>
+                        <i class="icon-tasks icon-large"></i>
                     </a>
                     <ul>
-                        <li><a class="btn-floating blue" href="/signup"><i class="material-icons">perm_identity</i></a></li>
-                        <li><a class="btn-floating green" href="/fetchnews" onclick="Materialize.toast('Fetching News...', 10000)"><i class="material-icons">loop</i></a></li>
+                        {% if current_user.is_authenticated %}
+                            <li><a class="btn-floating blue center-align" href="/signout"><i class=" icon-signout"></i></a></li>
+                            <li><a class="btn-floating green center-align" href="/fetchnews" onclick="Materialize.toast('Fetching News...', 10000)"><i class="icon-refresh center-align"></i></a></li>
+                        {% else %}
+                            <li><a class="btn-floating blue center-align" href="/signin"><i class=" icon-signin icon-spin"></i></a></li>
+                            <li><a class="btn-floating blue center-align" href="/signup"><i class=" icon-signin"></i></a></li>
+                        {% endif %}
                     </ul>
                 </div>
             {% endblock fixedbutton %}
@@ -96,6 +105,7 @@
             {% block scripts %}
                 <script src="{{ url_for('static', filename='materialize/js/jquery.min.js') }}"></script>
                 <script src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+                <script src="//unslider.com/unslider.js"></script>
             {%- endblock scripts %}
 
         {%- endblock body %}

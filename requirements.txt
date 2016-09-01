@@ -6,8 +6,9 @@ Flask-Script==2.0.5
 Flask-SQLAlchemy==2.1
 Flask-WTF==0.12
 html5lib==0.9999999
-Jinja2==2.8
-requests==2.10.0
+oauth2client==3.0.0
 SQLAlchemy==1.0.12
-Werkzeug==0.11.9
 WTForms==2.1
+requests==2.10.0
+google-api-python-client==1.5.3
+uwsgi

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+    <div class="valign-wrapper">
+        <div class="container">
+            <div class="row">
+                <form class="col s12 m6 offset-m3" method="post" action="" role="form" enctype="multipart/form-data">
+                    {{ form.csrf_token }}
+                    <div class="input-field col s12">
+                        {{ form.name(placeholder="昵称") }}
+                    </div>
+                    <div class="input-field col s12">
+                        {{ form.location(placeholder="地址") }}
+                    </div>
+                    <div class="input-field col s12">
+                        {{ form.about_me(placeholder="个人介绍") }}
+                    </div>
+                    <div class="input-field col s12" type="file">
+                        {{ form.avatar() }}
+                    </div>
+                    <div class="form-group  required">
+                        {{ form.submit(class_="btn btn-default green") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block footer %}
+    {{ super() }}
+{% endblock footer %}

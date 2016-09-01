@@ -64,6 +64,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(64))
     location = db.Column(db.String(64))
     about_me = db.Column(db.Text())
+    avatar = db.Column(db.String(64))
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
@@ -78,6 +79,12 @@ class User(UserMixin, db.Model):
 
     def verify_password(self, password):  # 验证用户密码
         return check_password_hash(self.password_hash, password)
+
+    def can(self, permissions):  # 将用户的角色权限和传入的参数权限按位与，如果结果和传入的参数一样，说明用户具有这个参数传入的权限
+        return self.role is not None and (self.role.permissions & permissions) == permissions
+
+    def is_administrator(self):  # 用 can 方法判断此用户是否为管理员（拥有所有的权限）
+        return self.can(Permission.ADMINISTER)
 
     def ping(self):  # 更新用户最后访问时间
         self.last_seen = datetime.utcnow()
