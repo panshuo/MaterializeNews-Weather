@@ -1,25 +1,25 @@
 {% macro pagination_widget(pagination, endpoint) %}
-        <ul class="pagination center-align">
-            <li{% if not pagination.has_prev %} class="disabled"{% endif %}>
-                <a href="{% if pagination.has_prev %}{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}{% else %}#{% endif %}"><i class="icon-double-angle-left"></i></a>
-            </li>
-            {% for p in pagination.iter_pages(left_edge=1, left_current=0, right_current=2, right_edge=1) %}
-                {% if p %}
-                    {% if p == pagination.page %}
-                        <li class="active green accent-4">
-                            <a href="{{ url_for(endpoint, page = p, **kwargs) }}">{{ p }}</a>
-                        </li>
-                    {% else %}
-                        <li>
-                            <a href="{{ url_for(endpoint, page = p, **kwargs) }}">{{ p }}</a>
-                        </li>
-                    {% endif %}
-                {% else %}
-                    <li class="disabled"><a href="#">&hellip;</a></li>
-                {% endif %}
-            {% endfor %}
-            <li{% if not pagination.has_next %} class="disabled"{% endif %}>
-                <a href="{% if pagination.has_next %}{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}{% else %}#{% endif %}"><i class="icon-double-angle-right"></i></a>
-            </li>
-        </ul>
+  <ul class="pagination center-align">
+    <li{% if not pagination.has_prev %} class="disabled"{% endif %}>
+      <a href="{% if pagination.has_prev %}{{ url_for(endpoint, page=pagination.prev_num, **kwargs) }}{% else %}#{% endif %}"><i class="icon-double-angle-left"></i></a>
+    </li>
+    {% for p in pagination.iter_pages(left_edge=1, left_current=0, right_current=2, right_edge=1) %}
+      {% if p %}
+        {% if p == pagination.page %}
+          <li class="active green accent-4">
+            <a href="{{ url_for(endpoint, page = p, **kwargs) }}">{{ p }}</a>
+          </li>
+        {% else %}
+          <li>
+            <a href="{{ url_for(endpoint, page = p, **kwargs) }}">{{ p }}</a>
+          </li>
+        {% endif %}
+      {% else %}
+        <li class="disabled"><a href="#">&hellip;</a></li>
+      {% endif %}
+    {% endfor %}
+    <li{% if not pagination.has_next %} class="disabled"{% endif %}>
+      <a href="{% if pagination.has_next %}{{ url_for(endpoint, page=pagination.next_num, **kwargs) }}{% else %}#{% endif %}"><i class="icon-double-angle-right"></i></a>
+    </li>
+  </ul>
 {% endmacro %}

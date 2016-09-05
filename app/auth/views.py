@@ -3,19 +3,19 @@
 from flask import render_template, redirect, request, url_for, flash
 from flask.ext.login import login_user, logout_user, login_required
 from . import auth
-from .. import db
+from .. import db, weibo_client
 from ..models import User
 from .forms import LoginForm, RegistrationForm
 from flask.ext.login import current_user
-from oauth2client import client
-from googleapiclient.discovery import build
-import httplib2, json, socks
-from httplib2 import ProxyInfo
-
-flow = client.flow_from_clientsecrets('/home/peter16/MaterializeNews-Weather/client_secret.json',
-                                      scope = 'profile',
-                                      redirect_uri = 'http://tetewechat.ngrok.cc/googleoauth2'
-                                      )
+# from oauth2client import client
+# from googleapiclient.discovery import build
+# import httplib2, json, socks
+# from httplib2 import ProxyInfo
+#
+# flow = client.flow_from_clientsecrets('/home/peter16/MaterializeNews-Weather/client_secret.json',
+#                                       scope = 'profile',
+#                                       redirect_uri = 'http://tetewechat.ngrok.cc/google-oauth2'
+#                                       )
 
 
 @auth.route('/signin', methods=['GET', 'POST'])
@@ -28,8 +28,8 @@ def signin():
             flash(u'欢迎回来 {0}！'.format(user.username))
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(u'用户名或者密码错误。')
-    auth_uri = flow.step1_get_authorize_url()
-    return render_template('signin.html', form=form, auth_uri=auth_uri)
+    # auth_uri = flow.step1_get_authorize_url()
+    return render_template('signin.html', form=form)
 
 
 @auth.route('/signout')
@@ -51,27 +51,42 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-@auth.route('/googleoauth2')
-def google_oauth2():
+# @auth.route('/google-oauth2')
+# def google_oauth2():
+#     auth_code = request.args.get('code', None)
+#     if auth_code:
+#         credentials = flow.step2_exchange(code=auth_code, http=httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP, proxy_host='localhost', proxy_port=1080)))
+#         http_auth = credentials.authorize(httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP, proxy_host='localhost', proxy_port=1080)))
+#         drive_service = build('drive', 'v2', http_auth)
+#         files = drive_service.files().list().execute()
+#         return json.dumps(files)
+#     user = User.query.filter_by(google_id=userinfo['id']).first()
+#     if user:
+#         user.name = userinfo['name']
+#         user.avatar = userinfo['picture']
+#     else:
+#         user = User(google_id=userinfo['id'],
+#                     name=userinfo['name'],
+#                     avatar=userinfo['picture'])
+#     db.session.add(user)
+#     db.session.flush()
+#     login_user(user)
+#     return redirect(url_for('index'))
+
+
+@auth.route('/weibo-oauth2')
+def weibo_oauth2():
     auth_code = request.args.get('code', None)
     if auth_code:
-        credentials = flow.step2_exchange(code=auth_code, http=httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP, proxy_host='localhost', proxy_port=1080)))
-        http_auth = credentials.authorize(httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP, proxy_host='localhost', proxy_port=1080)))
-        drive_service = build('drive', 'v2', http_auth)
-        files = drive_service.files().list().execute()
-        return json.dumps(files)
-    # user = User.query.filter_by(google_id=userinfo['id']).first()
-    # if user:
-    #     user.name = userinfo['name']
-    #     user.avatar = userinfo['picture']
-    # else:
-    #     user = User(google_id=userinfo['id'],
-    #                 name=userinfo['name'],
-    #                 avatar=userinfo['picture'])
-    # db.session.add(user)
-    # db.session.flush()
-    # login_user(user)
-    # return redirect(url_for('index'))
+        r = weibo_client.request_access_token(auth_code)
+        access_token = r.access_token
+        expires_in = r.expires_in  # token过期的UNIX时间：http://zh.wikipedia.org/wiki/UNIX%E6%97%B6%E9%97%B4
+        # TODO: 在此可保存access token
+        print access_token, expires_in
+        weibo_client.set_access_token(access_token, expires_in)
+        return "sucsess!"
+
+
 
 
 @auth.before_app_request

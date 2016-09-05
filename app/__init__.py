@@ -4,6 +4,7 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from config import config
+from weibo import APIClient
 import time
 
 
@@ -11,7 +12,10 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.session_protection = 'basic'
 login_manager.login_view = 'auth.signin'
-
+weibo_client = APIClient(app_key=config['default'].WEIBO_APP_KEY,
+                         app_secret=config['default'].WEIBO_APP_SECRET,
+                         redirect_uri=config['default'].WEIBO_CALLBACK_URI
+                         )
 
 def create_app(config_name):
     app = Flask(__name__)

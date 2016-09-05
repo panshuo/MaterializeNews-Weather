@@ -1,34 +1,39 @@
 {% extends "base.html" %}
 {% block title %}{{ user.username }}'s Profile{% endblock %}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <h1>{{ user.username }}</h1>
-            <img src="/static/avatar/{{ user.avatar }}" width="200">
-            {% if user.name or user.location %}
-                <p>
-                    {% if user.name %}{{ user.name }}{% endif %}
-                    {% if user.location %}
-                        From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>
-                    {% endif %}
-                </p>
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <div class="col s6">
+          <img src="/static/avatar/{{ user.avatar }}" width="100%" style="margin-top: auto">
+        </div>
+        <div class="col s6" style="text-align: center">
+          <h1>{{ user.username }}</h1>
+          {% if user.name or user.location %}
+            <p>
+              {% if user.name %}{{ user.name }}{% endif %}
+              {% if user.location %}
+                From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>
+              {% endif %}
+            </p>
+          {% endif %}
+          {% if current_user.is_administrator() %}
+            <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+          {% endif %}
+          {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+          <p>
+            {% if user == current_user %}
+              <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">编辑个人资料</a>
+              <a class="btn btn-default" href="{{ url }}">绑定新浪微博</a>
             {% endif %}
             {% if current_user.is_administrator() %}
-                <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+              <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">编辑用户信息 (管理员)</a>
             {% endif %}
-            {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-            <p>注册于 .上次访问.</p>
-            <p>
-                {% if user == current_user %}
-                    <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">编辑个人资料</a>
-                {% endif %}
-                {% if current_user.is_administrator() %}
-                    <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">编辑用户信息 (管理员)</a>
-                {% endif %}
-            </p>
+          </p>
         </div>
+      </div>
     </div>
+    <div class="row">
+    </div>
+  </div>
 {% endblock content %}
-{% block footer %}
-    {{ super() }}
-{% endblock footer %}

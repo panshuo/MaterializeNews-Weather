@@ -18,17 +18,17 @@
   </div>
   <div class="section z-depth-3 light-blue lighten-5">
     <div class="row">
-      <div class="col s12 m4" id="weather">
-        {% include '_weather.html' %}
-        <div class="row">
-          <div class="col s12">
-            <div class="zhihu-card z-depth-1" data-userhash="8f544d4d0a18d70dea20f9f09b7dd894"></div>
-            <script src="//cdn.jsdelivr.net/zhihu-card/latest/widget.js"></script>
-          </div>
+      <div class="col s12 m4">
+        <div class="col s12" id="weather">
+          {% include '_weather.html' %}
         </div>
+{#        <div class="col s12 " id="zhihu">#}
+{#          <div class="zhihu-card z-depth-1" data-userhash="8f544d4d0a18d70dea20f9f09b7dd894"></div>#}
+{#          <script src="//cdn.jsdelivr.net/zhihu-card/latest/widget.js"></script>#}
+{#        </div>#}
       </div>
       {% block news %}
-        <div class="col s12 m7">
+        <div class="col s12 m8">
           <div class="col s12" id="pagination">
             {% if pagination %}
               <p class="center-align">{{ macros.pagination_widget(pagination, '.index') }}</p>
@@ -46,13 +46,7 @@
 {% block scripts %}
   {{  super() }}
   <script>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-          Materialize.toast('{{ message }}', 10000)
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    {% include '_flashed_messages.html' %}
     $(".button-collapse").sideNav();
     $(document).ready(function() {
       $('.slider').slider({full_width: true});

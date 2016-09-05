@@ -68,6 +68,8 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    # weibo_access_token = db.Column(db.String(64))
+    # weibo_expires_in =
 
     @property
     def password(self):

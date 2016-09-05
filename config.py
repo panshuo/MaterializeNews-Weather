@@ -17,6 +17,9 @@ class Config:
     FLASKY_MAIL_SENDER = 'Flasky Admin <shuo.pan0915@gmail.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    WEIBO_APP_KEY = '4218865242'
+    WEIBO_APP_SECRET = 'aba62c8ec764b2b6bfd426e6d1dfdddb'
+    WEIBO_CALLBACK_URI = 'http://tetewechat.ngrok.cc/weibo-oauth2'
 
     @staticmethod
     def init_app(app):

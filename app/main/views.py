@@ -3,7 +3,7 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask import abort
 from flask.ext.login import current_user
-from .. import db
+from .. import db, weibo_client
 from ..models import User, News, Weather
 from ..decorators import admin_required, permission_required
 from . import main
@@ -14,11 +14,10 @@ from datetime import datetime as dt
 from random import sample
 from hashlib import md5
 
-
 # 首页
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    # 新闻部分
+    # 刷新新闻数据库部分
     form = FetchNewsForm()
     if form.validate_on_submit() and current_user.is_authenticated:
         News.fetch_news(form.count.data)
@@ -70,7 +69,8 @@ def user(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         abort(404)
-    return render_template('user.html', user=user)
+    url = weibo_client.get_authorize_url()
+    return render_template('user.html', user=user, url=url)
 
 
 # 编辑用户个人资料页面
