@@ -1,43 +1,39 @@
 {% extends "base.html" %}
 {% block title %}Sign In{% endblock %}
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col s12 center-align" style="margin-top: 15px;">
-                {% include '_flashed_messages.html' %}
-            </div>
-            <div class="col s12 center-align">
-                <p><a href="{{ auth_uri }}">使用谷歌帐号登录</a></p>
-            </div>
-            <form class="col s12 m6" method="post" action="" role="form">
-                {{ form.csrf_token }}
-                <div class="input-field col s12">
-                    {{ form.email(placeholder="电子邮箱") }}
-                </div>
-                <div class="input-field col s12">
-                    {{ form.password(placeholder="密码") }}
-                </div>
-                <div class="form-group  required">
-                    {{ form.submit(class_="btn btn-default green") }}
-                </div>
-            </form>
+  <div class="container">
+  <div class="row">
+  <div class="valign-wrapper">
+    <div class="col s12 valign center-align">
+      <form class="col s12 m6" method="post" action="" role="form">
+        {{ form.csrf_token }}
+        <div class="input-field col s12">
+          {{ form.email(placeholder="电子邮箱") }}
         </div>
+        <div class="input-field col s12">
+          {{ form.password(placeholder="密码") }}
+        </div>
+        <div class="form-group  required">
+          {{ form.submit(class_="btn btn-default green") }}
+        </div>
+      </form>
     </div>
+  </div>
 {% endblock content %}
 
 {% block scripts %}
-    {{  super() }}
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <script>
-                    Materialize.toast('{{ message }}', 10000)
-                </script>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+  {{  super() }}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <script>
+          Materialize.toast('{{ message }}', 10000)
+        </script>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 {% endblock scripts %}
 
 {% block footer %}
-    {{ super() }}
+  {{ super() }}
 {% endblock footer %}

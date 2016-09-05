@@ -25,7 +25,7 @@ def signin():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
-            flash(u'Welcome Back!')
+            flash(u'欢迎回来 {0}！'.format(user.username))
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(u'用户名或者密码错误。')
     auth_uri = flow.step1_get_authorize_url()
