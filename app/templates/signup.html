@@ -20,13 +20,29 @@
             {{ form.password2(placeholder="再输入一次密码") }}
           </div>
           <div class="form-group required">
-            {{ form.submit(class_="btn btn-default green") }}
+            {{ form.submit(class_="button button-pill button-action") }}
           </div>
         </div>
       </form>
     </div>
   </div>
 {% endblock content %}
+
+{% block scripts %}
+  {{  super() }}
+  <script>
+    {% include '_flashed_messages.html' %}
+      $(".button-collapse").sideNav();
+    $(document).ready(function() {
+      $('.slider').slider({full_width: true});
+      $('.collection-header').addClass('animated slideInDown');
+      $('.collection-item').addClass('animated slideInUp');
+      $('ul.tabs').tabs();
+      $('ul.tabs').tabs('select_tab', 'tab_id');
+    });
+  </script>
+{% endblock scripts %}
+
 {% block footer %}
   {{ super() }}
 {% endblock footer %}

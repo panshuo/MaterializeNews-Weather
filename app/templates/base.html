@@ -16,6 +16,9 @@
         {%- block styles %}
           <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
           <link href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}" rel="stylesheet">
+          <link href="{{ url_for('static', filename='buttons.css') }}" rel="stylesheet">
+          <link href="{{ url_for('static', filename='messenger/messenger.css') }}" rel="stylesheet">
+          <link href="{{ url_for('static', filename='messenger/messenger-theme-flat.css') }}" rel="stylesheet">
           <link href="{{ url_for('static', filename='font-awesome.min.css') }}" rel="stylesheet">
           <link href="{{ url_for('static', filename='animate.css') }}" rel="stylesheet">
           <style>
@@ -43,11 +46,11 @@
             <nav>
               <div class="nav-wrapper indigo darken-1">
                 <div class="container">
-                    <a href="/" class="brand-logo"><h5 class="animated flipInX">Weather & News</h5></a>
+                  <a href="/" class="brand-logo"><h5 class="animated flipInX">Weather & News</h5></a>
                   <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
                   <ul class="right hide-on-med-and-down">
                     {% if current_user.is_authenticated %}
-                      <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a> </li>
+                      <li><a href="{{ url_for('auth.user', username=current_user.username) }}">Profile</a> </li>
                       <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
                     {% else %}
                       <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
@@ -93,7 +96,7 @@
           <ul>
             {% if current_user.is_authenticated %}
               <li><a class="btn-floating red center-align" href="/signout"><i class=" icon-signout"></i></a></li>
-              <li><a class="btn-floating green center-align" href="/fetchnews" onclick="Materialize.toast('Fetching News...', 10000)"><i class="icon-refresh center-align"></i></a></li>
+              <li><a class="btn-floating green center-align" href="/fetchnews" onclick="Materialize.toast('正在获取新闻...', 10000)"><i class="icon-refresh center-align"></i></a></li>
             {% else %}
               <li><a class="btn-floating blue center-align" href="/signin"><i class=" icon-signin"></i></a></li>
               <li><a class="btn-floating lime center-align" href="/signup"><i class=" icon-user-md"></i></a></li>
@@ -105,7 +108,8 @@
       {% block scripts %}
         <script src="{{ url_for('static', filename='materialize/js/jquery.min.js') }}"></script>
         <script src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
-        {#                <script src="//unslider.com/unslider.js"></script>#}
+        <script src="{{ url_for('static', filename='messenger/messenger.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='messenger/messenger-theme-flat.js') }}"></script>
       {%- endblock scripts %}
 
     {%- endblock body %}

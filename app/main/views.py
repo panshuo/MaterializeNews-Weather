@@ -8,7 +8,7 @@ from ..models import User, News, Weather
 from ..decorators import admin_required, permission_required
 from . import main
 from flask.ext.login import login_required
-from .forms import EditProfileForm, FetchNewsForm
+from .forms import FetchNewsForm
 from sqlalchemy import desc
 from datetime import datetime as dt
 from random import sample
@@ -62,41 +62,3 @@ def fetch_news():
     News.fetch_news(50)
     return redirect(url_for('.index'))
 
-
-# 用户个人页面
-@main.route('/user/<username>')
-def user(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        abort(404)
-    url = weibo_client.get_authorize_url()
-    return render_template('user.html', user=user, url=url)
-
-
-# 编辑用户个人资料页面
-@main.route('/edit-profile', methods=["GET", "POST"])
-@login_required
-def edit_profile():
-    form = EditProfileForm()
-    if form.validate_on_submit():
-        avatar_filename = md5(current_user.email).hexdigest() + form.avatar.data.filename.strip('.')[-1]
-        print avatar_filename
-        form.avatar.data.save('app/static/avatar/' + avatar_filename)
-        current_user.name = form.name.data
-        current_user.avatar = avatar_filename
-        current_user.location = form.location.data
-        current_user.about_me = form.about_me.data
-        db.session.add(current_user)
-        flash(u'你的资料已成功更新!')
-        return redirect(url_for('.user', username=current_user.username))
-    form.name.data = current_user.name
-    form.location.data = current_user.location
-    form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', form=form)
-
-
-@main.route('/edit-profile-admin', methods=["GET", "POST"])
-@login_required
-@admin_required
-def edit_profile_admin():
-    pass

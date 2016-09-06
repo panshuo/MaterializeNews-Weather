@@ -10,5 +10,5 @@ dist
 build
 sunny
 /migrations
-
+/app/static/avatar
 

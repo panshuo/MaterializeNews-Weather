@@ -58,29 +58,18 @@ class Permission:
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
-    password_hash = db.Column(db.String(128))
-    name = db.Column(db.String(64))
+    nickname = db.Column(db.String(64))
     location = db.Column(db.String(64))
     about_me = db.Column(db.Text())
     avatar = db.Column(db.String(64))
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    # weibo_access_token = db.Column(db.String(64))
-    # weibo_expires_in =
+    authorization = db.relationship('Authorization', backref='user')
+    oauths = db.relationship('Oauth', backref='user')
 
-    @property
-    def password(self):
-        raise AttributeError('password is not a readable attribute.')
-
-    @password.setter  # 将用户密码的 Hash 值写入数据库
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password):  # 验证用户密码
-        return check_password_hash(self.password_hash, password)
 
     def can(self, permissions):  # 将用户的角色权限和传入的参数权限按位与，如果结果和传入的参数一样，说明用户具有这个参数传入的权限
         return self.role is not None and (self.role.permissions & permissions) == permissions
@@ -94,6 +83,34 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return u'User {0}'.format(self.username)
+
+
+# 普通用户名密码方式登录
+class Authorization(db.Model):
+    __tablename__ = "authorization"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    password_hash = db.Column(db.String(128))
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute.')
+
+    @password.setter  # 将用户密码的 Hash 值写入数据库
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):  # 验证用户密码
+        return check_password_hash(self.password_hash, password)
+
+
+# 第三方 Oauth 2 登录
+class Oauth(db.Model):
+    __tablename__ = "oauths"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    weibo_access_token = db.Column(db.String(64))
+    # weibo_expires_in = 1
 
 
 # 存储获取的新闻网站RSS文章
