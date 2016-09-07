@@ -53,11 +53,28 @@ class Permission:
     FETCH_NEWS = 0x08
     ADMINISTER = 0x80
 
+class Favourite(db.Model):
+    __tablename__ = 'favourites'
+    favourite_news_id = db.Column(db.Integer, db.ForeignKey('news.id'), primary_key=True)
+    favourite_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.now())
+
 
 # 定义用户模型
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    # 和普通登录模型和 Oauth 模型的一对多关系
+    authorization = db.relationship('Authorization', backref='user')
+    oauths = db.relationship('Oauth', backref='user')
+    # 和 News 模型的多对多关系
+    favourite_news = db.relationship('Favourite',
+                                     foreign_keys=[Favourite.favourite_by_id],
+                                     backref=db.backref('favourite_by', lazy='joined'),
+                                     lazy='dynamic',
+                                     cascade='all, delete-orphan'
+                                     )
+    # 外键，指向 Role 模型的主键
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
@@ -67,8 +84,6 @@ class User(UserMixin, db.Model):
     avatar = db.Column(db.String(64))
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
-    authorization = db.relationship('Authorization', backref='user')
-    oauths = db.relationship('Oauth', backref='user')
 
 
     def can(self, permissions):  # 将用户的角色权限和传入的参数权限按位与，如果结果和传入的参数一样，说明用户具有这个参数传入的权限
@@ -80,6 +95,20 @@ class User(UserMixin, db.Model):
     def ping(self):  # 更新用户最后访问时间
         self.last_seen = datetime.utcnow()
         db.session.add(self)
+
+    def favourite(self, news):
+        if not self.is_favouriting(news):
+            f = Favourite(favourite_news=news, favourite_by=self)
+            db.session.add(f)
+
+    def unfavourite(self, news):
+        f = self.favourite_news.filter_by(favourite_news_id=news.id).first()
+        if f:
+            db.session.delete(f)
+
+    def is_favouriting(self, news):
+        return self.favourite_news.filter_by(favourite_news_id=news.id).first() is not None
+
 
     def __repr__(self):
         return u'User {0}'.format(self.username)
@@ -116,6 +145,13 @@ class Oauth(db.Model):
 # 存储获取的新闻网站RSS文章
 class News(db.Model):
     __tablename__ = "news"
+    # 和 User 模型的多对多关系
+    favourite_by = db.relationship('Favourite',
+                                     foreign_keys=[Favourite.favourite_news_id],
+                                     backref=db.backref('favourite_news', lazy='joined'),
+                                     lazy='dynamic',
+                                     cascade='all, delete-orphan'
+                                     )
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, index=True)
     published = db.Column(db.String)
@@ -123,6 +159,9 @@ class News(db.Model):
     media_thumbnail = db.Column(db.String)
     link = db.Column(db.String)
     news_agency = db.Column(db.String)
+
+    def favourited_by(self, user):
+        return self.favourite_by.filter_by(favourite_by_id=user.id).first() is not None
 
     @staticmethod
     def fetch_news(count=20):

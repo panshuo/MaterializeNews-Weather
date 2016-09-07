@@ -3,8 +3,8 @@
 {% block content %}
   <div class="container">
     <div class="row">
-      <div class="col s12" style="margin-top: 30px;">
-        <form class="col s12 m6 offset-m3" method="post" action="" role="form">
+      <div class="col s12 m5 offset-m1" style="margin-top: 30px;">
+        <form method="post" action="" role="form">
           {{ form.csrf_token }}
           <div class="form-group required">
             <div class="input-field col s12">
@@ -28,6 +28,15 @@
           </div>
         </form>
       </div>
+      <div class="col s12 m5" style="margin-top: 30px;">
+        <div class="collection">
+          <a href="{{ weibo_uri }}" class="collection-item">
+            <wb:login-button type="3,2" onlogin="login" onlogout="logout">登录按钮</wb:login-button>
+          </a>
+          <a href="{{ url_for('auth.weibo') }}" class="collection-item">QQ登录</a>
+          <a href="{{ url_for('auth.weibo') }}" class="collection-item">微信登录</a>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock content %}
@@ -36,12 +45,12 @@
   {{  super() }}
   <script>
     {% include '_flashed_messages.html' %}
-      $(".button-collapse").sideNav();
+    $(".button-collapse").sideNav();
     $(document).ready(function() {
       $('.slider').slider({full_width: true});
       $('.collection-header').addClass('animated slideInDown');
       $('.collection-item').addClass('animated slideInUp');
-      $('ul.tabs').tabs();
+{#      $('ul.tabs').tabs();#}
       $('ul.tabs').tabs('select_tab', 'tab_id');
     });
   </script>

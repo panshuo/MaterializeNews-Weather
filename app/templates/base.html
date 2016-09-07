@@ -1,6 +1,6 @@
 {% block doc -%}
   <!DOCTYPE html>
-  <html>
+  <html xmlns:wb="http://open.weibo.com/wb">
   {% block html_attribs %}{% endblock html_attribs %}
   {%- block html %}
 
@@ -108,6 +108,7 @@
       {% block scripts %}
         <script src="{{ url_for('static', filename='materialize/js/jquery.min.js') }}"></script>
         <script src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+        <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=" type="text/javascript" charset="utf-8"></script>
         <script src="{{ url_for('static', filename='messenger/messenger.min.js') }}"></script>
         <script src="{{ url_for('static', filename='messenger/messenger-theme-flat.js') }}"></script>
       {%- endblock scripts %}

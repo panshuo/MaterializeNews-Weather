@@ -16,15 +16,14 @@ def signin():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        print user.authorization
-        print user.authorization[0]
         if user is not None and user.authorization[0].verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             flash(u'欢迎回来 {0}！'.format(user.username))
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(u'用户名或者密码错误。')
     # auth_uri = flow.step1_get_authorize_url()
-    return render_template('signin.html', form=form)
+    weibo_uri = weibo_client.get_authorize_url()
+    return render_template('signin.html', form=form, weibo_uri=weibo_uri)
 
 
 @auth.route('/signup', methods=['GET', 'POST'])
@@ -70,15 +69,15 @@ def signout():
 #     return redirect(url_for('index'))
 
 
-@auth.route('/weibo-oauth2')
-def weibo_oauth2():
+@auth.route('/auth/weibo')
+def weibo():
     auth_code = request.args.get('code', None)
     if auth_code:
         r = weibo_client.request_access_token(auth_code)
+        print r
         access_token = r.access_token
         expires_in = r.expires_in  # token过期的UNIX时间：http://zh.wikipedia.org/wiki/UNIX%E6%97%B6%E9%97%B4
         # TODO: 在此可保存access token
-        print access_token, expires_in
         weibo_client.set_access_token(access_token, expires_in)
         return "sucsess!"
 
@@ -100,7 +99,6 @@ def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
         avatar_filename = md5(current_user.email).hexdigest() + form.avatar.data.filename.strip('.')[-1]
-        print avatar_filename
         form.avatar.data.save('app/static/avatar/' + avatar_filename)
         current_user.nickname = form.name.data
         current_user.avatar = avatar_filename
