@@ -23,7 +23,7 @@ def index():
         News.fetch_news(form.count.data)
         return redirect(url_for('.index'))
     if form.validate_on_submit() and not current_user.is_authenticated:
-        flash(u"抓取新闻之前请先登录。")
+        flash(u'抓取新闻之前请先登录。')
         return redirect(url_for('auth.signin'))
 
     # 幻灯片部分

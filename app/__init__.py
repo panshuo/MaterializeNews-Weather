@@ -17,7 +17,8 @@ weibo_client = APIClient(app_key=Config.WEIBO_APP_KEY,
                          redirect_uri=Config.WEIBO_CALLBACK_URI
                          )
 
-def create_app(config_name):
+
+def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     Config.init_app(app)

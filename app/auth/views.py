@@ -4,11 +4,13 @@ from flask import render_template, redirect, request, url_for, flash, abort
 from flask.ext.login import login_user, logout_user, login_required
 from . import auth
 from .. import db, weibo_client
-from ..models import User, Authorization
+from ..models import User, Authorization, Oauth
 from .forms import LoginForm, RegistrationForm, EditProfileForm
 from flask.ext.login import current_user
 from ..decorators import admin_required, permission_required
 from hashlib import md5
+import requests
+import json
 
 
 @auth.route('/signin', methods=['GET', 'POST'])
@@ -16,12 +18,11 @@ def signin():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.authorization[0].verify_password(form.password.data):
+        if user is not None and user.authorization.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             flash(u'欢迎回来 {0}！'.format(user.username))
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(u'用户名或者密码错误。')
-    # auth_uri = flow.step1_get_authorize_url()
     weibo_uri = weibo_client.get_authorize_url()
     return render_template('signin.html', form=form, weibo_uri=weibo_uri)
 
@@ -31,7 +32,7 @@ def signup():
     form = RegistrationForm()
     if form.validate_on_submit():
         new_auth = Authorization(password=form.password.data)
-        new_user = User(email=form.email.data, username=form.username.data, authorization=[new_auth])
+        new_user = User(email=form.email.data, username=form.username.data, authorization=new_auth)
         db.session.add(new_user)
         flash(u'注册成功，现在可以登录了。')
         return redirect(url_for('auth.signin'))
@@ -69,17 +70,38 @@ def signout():
 #     return redirect(url_for('index'))
 
 
-@auth.route('/auth/weibo')
+@auth.route('/oauth/weibo')
 def weibo():
     auth_code = request.args.get('code', None)
+    print auth_code
     if auth_code:
         r = weibo_client.request_access_token(auth_code)
-        print r
-        access_token = r.access_token
-        expires_in = r.expires_in  # token过期的UNIX时间：http://zh.wikipedia.org/wiki/UNIX%E6%97%B6%E9%97%B4
-        # TODO: 在此可保存access token
-        weibo_client.set_access_token(access_token, expires_in)
-        return "sucsess!"
+        weibo_access_token = r.access_token
+        weibo_expires_in = r.expires_in  # token过期的UNIX时间：http://zh.wikipedia.org/wiki/UNIX%E6%97%B6%E9%97%B4
+        weibo_user_id = r.uid  # 用户的新浪微博uid
+        # weibo_client.set_access_token(weibo_access_token, weibo_expires_in)
+        oauth = Oauth.query.filter_by(weibo_user_id=weibo_user_id).first()
+        if oauth:
+            user = User.query.filter_by(oauth=oauth).first()
+            print 'success!'
+            # login_user(user)
+        else:
+            oauth = Oauth(weibo_access_token=weibo_access_token,
+                          weibo_expires_in=weibo_expires_in,
+                          weibo_user_id=weibo_user_id
+                          )
+            temp = requests.get('https://api.weibo.com/2/users/show.json?access_token={0}&uid={1}'.format(weibo_access_token, weibo_user_id))
+            # temp = weibo_client.users.show.get(uid=weibo_user_id)
+            user_info = json.loads(temp.text)
+            print user_info['status']['']
+            # user = User(oauth=oauth)
+            # db.session.add(user)
+            # db.session.commit()
+            print 'first success!'
+            # login_user(user)
+
+        flash(u'已使用微博帐号登录')
+        return redirect(url_for('main.index'))
 
 
 # 用户个人页面

@@ -1,16 +1,7 @@
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    Messenger.options = {
-    extraClasses: 'messenger-fixed messenger-on-top messenger-on-right',
-    theme: 'flat'
-    }
     {% for message in messages %}
-      Messenger().post({
-      message: '{{ message }}',
-      type: 'error',
-      showCloseButton: true
-      });
-      {#      Materialize.toast('{{ message }}', 5000)#}
+      Materialize.toast('{{ message }}', 5000)
     {% endfor %}
   {% endif %}
 {% endwith %}

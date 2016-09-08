@@ -47,11 +47,15 @@ class Role(db.Model):
 
 # 权限常量
 class Permission:
+    def __init__(self):
+        pass
+
     FOLLOW = 0x01
     COMMENT = 0x02
     MODIFY = 0x04
     FETCH_NEWS = 0x08
     ADMINISTER = 0x80
+
 
 class Favourite(db.Model):
     __tablename__ = 'favourites'
@@ -64,9 +68,11 @@ class Favourite(db.Model):
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    # 和普通登录模型和 Oauth 模型的一对多关系
-    authorization = db.relationship('Authorization', backref='user')
-    oauths = db.relationship('Oauth', backref='user')
+
+    # 和普通登录模型和 Oauth 模型的一对一关系 最后的 uselist 参数决定是一对一还是一对多关系
+    authorization = db.relationship('Authorization', backref='user', uselist=False)
+    oauth = db.relationship('Oauth', backref='user', uselist=False)
+
     # 和 News 模型的多对多关系
     favourite_news = db.relationship('Favourite',
                                      foreign_keys=[Favourite.favourite_by_id],
@@ -76,6 +82,8 @@ class User(UserMixin, db.Model):
                                      )
     # 外键，指向 Role 模型的主键
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
+    # 用户属性
     email = db.Column(db.String(64), unique=True, index=True)
     username = db.Column(db.String(64), unique=True, index=True)
     nickname = db.Column(db.String(64))
@@ -85,7 +93,6 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
 
-
     def can(self, permissions):  # 将用户的角色权限和传入的参数权限按位与，如果结果和传入的参数一样，说明用户具有这个参数传入的权限
         return self.role is not None and (self.role.permissions & permissions) == permissions
 
@@ -93,7 +100,7 @@ class User(UserMixin, db.Model):
         return self.can(Permission.ADMINISTER)
 
     def ping(self):  # 更新用户最后访问时间
-        self.last_seen = datetime.utcnow()
+        self.last_seen = datetime.now()
         db.session.add(self)
 
     def favourite(self, news):
@@ -108,7 +115,6 @@ class User(UserMixin, db.Model):
 
     def is_favouriting(self, news):
         return self.favourite_news.filter_by(favourite_news_id=news.id).first() is not None
-
 
     def __repr__(self):
         return u'User {0}'.format(self.username)
@@ -139,7 +145,8 @@ class Oauth(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     weibo_access_token = db.Column(db.String(64))
-    # weibo_expires_in = 1
+    weibo_user_id = db.Column(db.String(16))
+    weibo_expires_in = db.Column(db.Integer)
 
 
 # 存储获取的新闻网站RSS文章
