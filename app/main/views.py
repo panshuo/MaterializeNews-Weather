@@ -1,23 +1,20 @@
 # _*_ coding: utf-8 _*_
 
 from flask import render_template, redirect, url_for, flash, request
-from flask import abort
 from flask.ext.login import current_user
-from .. import db, weibo_client
 from ..models import User, News, Weather
-from ..decorators import admin_required, permission_required
 from . import main
 from flask.ext.login import login_required
 from .forms import FetchNewsForm
 from sqlalchemy import desc
 from datetime import datetime as dt
 from random import sample
-from hashlib import md5
+
 
 # 首页
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    # 刷新新闻数据库部分
+    # 刷新数据库里的新闻
     form = FetchNewsForm()
     if form.validate_on_submit() and current_user.is_authenticated:
         News.fetch_news(form.count.data)

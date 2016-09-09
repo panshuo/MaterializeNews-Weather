@@ -23,8 +23,9 @@ def signin():
             flash(u'欢迎回来 {0}！'.format(user.username))
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(u'用户名或者密码错误。')
-    weibo_uri = weibo_client.get_authorize_url()
-    return render_template('signin.html', form=form, weibo_uri=weibo_uri)
+    qq_uri = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=1105610021&redirect_uri=http://tetewechat.ngrok.cc/oauth/qq&state=test'
+
+    return render_template('signin.html', form=form)
 
 
 @auth.route('/signup', methods=['GET', 'POST'])
@@ -32,7 +33,10 @@ def signup():
     form = RegistrationForm()
     if form.validate_on_submit():
         new_auth = Authorization(password=form.password.data)
-        new_user = User(email=form.email.data, username=form.username.data, authorization=new_auth)
+        new_user = User(email=form.email.data,
+                        username=form.username.data,
+                        authorization=new_auth
+                        )
         db.session.add(new_user)
         flash(u'注册成功，现在可以登录了。')
         return redirect(url_for('auth.signin'))
@@ -47,11 +51,17 @@ def signout():
     return redirect(url_for('main.index'))
 
 
-# @auth.route('/google-oauth2')
-# def google_oauth2():
+# @auth.route('/oauth/google')
+# def google():
 #     auth_code = request.args.get('code', None)
 #     if auth_code:
-#         credentials = flow.step2_exchange(code=auth_code, http=httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP, proxy_host='localhost', proxy_port=1080)))
+#         credentials = flow.step2_exchange(code=auth_code,
+#                                           http=httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP,
+#                                                                                   proxy_host='localhost',
+#                                                                                   proxy_port=1080
+#                                                                                   )
+#                                                              )
+#                                           )
 #         http_auth = credentials.authorize(httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP, proxy_host='localhost', proxy_port=1080)))
 #         drive_service = build('drive', 'v2', http_auth)
 #         files = drive_service.files().list().execute()
@@ -72,36 +82,41 @@ def signout():
 
 @auth.route('/oauth/weibo')
 def weibo():
-    auth_code = request.args.get('code', None)
-    print auth_code
+    auth_code = request.args.get('code')
     if auth_code:
         r = weibo_client.request_access_token(auth_code)
         weibo_access_token = r.access_token
         weibo_expires_in = r.expires_in  # token过期的UNIX时间：http://zh.wikipedia.org/wiki/UNIX%E6%97%B6%E9%97%B4
         weibo_user_id = r.uid  # 用户的新浪微博uid
-        # weibo_client.set_access_token(weibo_access_token, weibo_expires_in)
+        weibo_client.set_access_token(weibo_access_token, weibo_expires_in)
         oauth = Oauth.query.filter_by(weibo_user_id=weibo_user_id).first()
         if oauth:
             user = User.query.filter_by(oauth=oauth).first()
+            print user.oauth.weibo_user_id
             print 'success!'
-            # login_user(user)
+            login_user(user)
+            flash(u'已使用微博帐号登录')
         else:
             oauth = Oauth(weibo_access_token=weibo_access_token,
                           weibo_expires_in=weibo_expires_in,
                           weibo_user_id=weibo_user_id
                           )
-            temp = requests.get('https://api.weibo.com/2/users/show.json?access_token={0}&uid={1}'.format(weibo_access_token, weibo_user_id))
-            # temp = weibo_client.users.show.get(uid=weibo_user_id)
-            user_info = json.loads(temp.text)
-            print user_info['status']['']
-            # user = User(oauth=oauth)
-            # db.session.add(user)
-            # db.session.commit()
-            print 'first success!'
-            # login_user(user)
-
-        flash(u'已使用微博帐号登录')
+            username = "weibo_" + weibo_user_id
+            user = User(oauth=oauth, username=username)
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            flash(u'第一次使用微博登录，您可以去完善信息或者绑定已有帐号')
         return redirect(url_for('main.index'))
+    else:
+        return redirect(weibo_client.get_authorize_url())
+
+
+@auth.route('/oauth/qq')
+def qq():
+    auth_code = request.args.get('code')
+    r = requests.get('https://graph.qq.com/oauth2.0/authorize?grant_type=refresh_token&client_id=1105610021&client_secret=GbUsqMW5BjlJO8NN&code={}&redirect_uri=http://tetewechat.ngrok.cc/oauth/qq'.format(auth_code))
+    print r.text
 
 
 # 用户个人页面
@@ -120,7 +135,7 @@ def user(username):
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
-        avatar_filename = md5(current_user.email).hexdigest() + form.avatar.data.filename.strip('.')[-1]
+        avatar_filename = md5(current_user.username).hexdigest() + form.avatar.data.filename.strip('.')[-1]
         form.avatar.data.save('app/static/avatar/' + avatar_filename)
         current_user.nickname = form.name.data
         current_user.avatar = avatar_filename

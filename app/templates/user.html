@@ -4,11 +4,11 @@
   <div class="container">
     <div class="row">
       <div class="col s12">
-        <div class="col s6">
+        <div class="col s12 m6">
           <img class="responsive-img" src="/static/avatar/{{ user.avatar }}">
         </div>
-        <div class="col s6" style="text-align: center">
-          <h1>{{ user.username or user.oauth.weibo_user_id }}</h1>
+        <div class="col s12 m6" style="text-align: center">
+          <h3>{{ user.nickname or user.username }}</h3>
           {% if user.name or user.location %}
             <p>
               {% if user.name %}{{ user.name }}{% endif %}

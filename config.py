@@ -9,8 +9,8 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or '$%^NB4%^#_+UHha'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    WEIBO_APP_KEY = '4218865242'
-    WEIBO_APP_SECRET = 'aba62c8ec764b2b6bfd426e6d1dfdddb'
+    WEIBO_APP_KEY = '3797168746'
+    WEIBO_APP_SECRET = 'cf1eb69ab2ea726b1b0542da97160c52'
     WEIBO_CALLBACK_URI = 'http://tetewechat.ngrok.cc/oauth/weibo'
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
@@ -19,4 +19,3 @@ class Config:
     @staticmethod
     def init_app(app):
         pass
-
