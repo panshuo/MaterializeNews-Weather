@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ user.username }}'s Profile{% endblock %}
+{% block title %}{{ user.nickname or user.username or ('wb_' + user.oauth.weibo_user_id) }}'s Profile{% endblock %}
 {% block content %}
   <div class="container">
     <div class="row">
@@ -8,7 +8,7 @@
           <img class="responsive-img" src="/static/avatar/{{ user.avatar }}">
         </div>
         <div class="col s12 m6" style="text-align: center">
-          <h3>{{ user.nickname or user.username }}</h3>
+          <h3>{{ user.nickname or user.username or ('wb_' + user.oauth.weibo_user_id) }}</h3>
           {% if user.name or user.location %}
             <p>
               {% if user.name %}{{ user.name }}{% endif %}
@@ -37,3 +37,18 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block scripts %}
+  {{  super() }}
+  <script>
+    {% include '_flashed_messages.html' %}
+    $(".button-collapse").sideNav();
+    $(document).ready(function() {
+      $('.slider').slider({full_width: true});
+      $('.collection-header').addClass('animated slideInDown');
+      $('.collection-item').addClass('animated slideInUp');
+      {#      $('ul.tabs').tabs();#}
+      $('ul.tabs').tabs('select_tab', 'tab_id');
+    });
+  </script>
+{% endblock scripts %}

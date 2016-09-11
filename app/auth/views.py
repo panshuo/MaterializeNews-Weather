@@ -10,21 +10,23 @@ from flask.ext.login import current_user
 from ..decorators import admin_required, permission_required
 from hashlib import md5
 import requests
-import json
 
 
 @auth.route('/signin', methods=['GET', 'POST'])
 def signin():
+    # 如果当前用户已经登录直接重定向到用户首页
+    if current_user.is_authenticated:
+        flash(u'您已经登录了')
+        return redirect(url_for('auth.user', user_id=current_user.id))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.authorization.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
-            flash(u'欢迎回来 {0}！'.format(user.username))
+            login_user(user, True)
+            flash(u'欢迎回来 {0}！'.format(user.username or 'wb_' + user.oauth.weibo_user_id))
             return redirect(request.args.get('next') or url_for('main.index'))
         flash(u'用户名或者密码错误。')
-    qq_uri = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=1105610021&redirect_uri=http://tetewechat.ngrok.cc/oauth/qq&state=test'
-
+    # qq_uri = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=1105610021&redirect_uri=http://tetewechat.ngrok.cc/oauth/qq&state=test'
     return render_template('signin.html', form=form)
 
 
@@ -51,35 +53,6 @@ def signout():
     return redirect(url_for('main.index'))
 
 
-# @auth.route('/oauth/google')
-# def google():
-#     auth_code = request.args.get('code', None)
-#     if auth_code:
-#         credentials = flow.step2_exchange(code=auth_code,
-#                                           http=httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP,
-#                                                                                   proxy_host='localhost',
-#                                                                                   proxy_port=1080
-#                                                                                   )
-#                                                              )
-#                                           )
-#         http_auth = credentials.authorize(httplib2.Http(proxy_info=ProxyInfo(proxy_type=socks.PROXY_TYPE_HTTP, proxy_host='localhost', proxy_port=1080)))
-#         drive_service = build('drive', 'v2', http_auth)
-#         files = drive_service.files().list().execute()
-#         return json.dumps(files)
-#     user = User.query.filter_by(google_id=userinfo['id']).first()
-#     if user:
-#         user.name = userinfo['name']
-#         user.avatar = userinfo['picture']
-#     else:
-#         user = User(google_id=userinfo['id'],
-#                     name=userinfo['name'],
-#                     avatar=userinfo['picture'])
-#     db.session.add(user)
-#     db.session.flush()
-#     login_user(user)
-#     return redirect(url_for('index'))
-
-
 @auth.route('/oauth/weibo')
 def weibo():
     auth_code = request.args.get('code')
@@ -92,21 +65,19 @@ def weibo():
         oauth = Oauth.query.filter_by(weibo_user_id=weibo_user_id).first()
         if oauth:
             user = User.query.filter_by(oauth=oauth).first()
-            print user.oauth.weibo_user_id
-            print 'success!'
-            login_user(user)
+            login_user(user, True)
             flash(u'已使用微博帐号登录')
         else:
             oauth = Oauth(weibo_access_token=weibo_access_token,
                           weibo_expires_in=weibo_expires_in,
                           weibo_user_id=weibo_user_id
                           )
-            username = "weibo_" + weibo_user_id
-            user = User(oauth=oauth, username=username)
+            # username = "weibo_" + weibo_user_id
+            user = User(oauth=oauth)
             db.session.add(user)
             db.session.commit()
-            login_user(user)
-            flash(u'第一次使用微博登录，您可以去完善信息或者绑定已有帐号')
+            login_user(user, True)
+            flash(u'第一次使用微博登录，您可以去完善用户信息或者绑定已有帐号')
         return redirect(url_for('main.index'))
     else:
         return redirect(weibo_client.get_authorize_url())
@@ -120,13 +91,12 @@ def qq():
 
 
 # 用户个人页面
-@auth.route('/user/<username>')
-def user(username):
-    user = User.query.filter_by(username=username).first()
+@auth.route('/user/<user_id>')
+def user(user_id):
+    user = User.query.filter_by(id=user_id).first()
     if user is None:
         abort(404)
-    url = weibo_client.get_authorize_url()
-    return render_template('user.html', user=user, url=url)
+    return render_template('user.html', user=user)
 
 
 # 编辑用户个人资料页面
@@ -135,7 +105,7 @@ def user(username):
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
-        avatar_filename = md5(current_user.username).hexdigest() + form.avatar.data.filename.strip('.')[-1]
+        avatar_filename = md5(current_user.username or current_user.oauth.weibo_user_id).hexdigest() + form.avatar.data.filename.strip('.')[-1]
         form.avatar.data.save('app/static/avatar/' + avatar_filename)
         current_user.nickname = form.name.data
         current_user.avatar = avatar_filename
@@ -143,7 +113,7 @@ def edit_profile():
         current_user.about_me = form.about_me.data
         db.session.add(current_user)
         flash(u'你的资料已成功更新!')
-        return redirect(url_for('.user', username=current_user.username))
+        return redirect(url_for('.user', user_id=current_user.id))
     form.name.data = current_user.nickname
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me

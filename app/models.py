@@ -140,7 +140,7 @@ class Authorization(db.Model):
         return check_password_hash(self.password_hash, password)
 
 
-# 第三方 Oauth 2 登录
+# 第三方 Oauth 2 登录模型
 class Oauth(db.Model):
     __tablename__ = "oauths"
     id = db.Column(db.Integer, primary_key=True)
@@ -155,11 +155,11 @@ class News(db.Model):
     __tablename__ = "news"
     # 和 User 模型的多对多关系
     starred_by = db.relationship('Favourite',
-                                   foreign_keys=[Favourite.starred_news_id],
-                                   backref=db.backref('starred_news', lazy='joined'),
-                                   lazy='dynamic',
-                                   cascade='all, delete-orphan'
-                                   )
+                                 foreign_keys=[Favourite.starred_news_id],
+                                 backref=db.backref('starred_news', lazy='joined'),
+                                 lazy='dynamic',
+                                 cascade='all, delete-orphan'
+                                 )
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, index=True)
     published = db.Column(db.String)

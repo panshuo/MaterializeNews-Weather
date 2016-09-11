@@ -28,12 +28,12 @@
               min-height: 100vh;
               flex-direction: column;
             }
-
             main {
               flex: 1 0 auto;
             }
           </style>
         {%- endblock styles %}
+
       {%- endblock head %}
     </head>
 
@@ -51,7 +51,7 @@
                   <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
                   <ul class="right hide-on-med-and-down">
                     {% if current_user.is_authenticated %}
-                      <li><a href="{{ url_for('auth.user', username=current_user.username) }}">Profile</a> </li>
+                      <li><a href="{{ url_for('auth.user', user_id=current_user.id) }}">Profile</a> </li>
                       <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
                     {% else %}
                       <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
@@ -60,7 +60,7 @@
                   </ul>
                   <ul class="side-nav" id="mobile-demo">
                     {% if current_user.is_authenticated %}
-                      <li><a href="{{ url_for('auth.user', username=current_user.username) }}">Profile</a> </li>
+                      <li><a href="{{ url_for('auth.user', user_id=current_user.id) }}">Profile</a> </li>
                       <li><a href="{{ url_for('auth.signout') }}">Sign Out</a></li>
                     {% else %}
                       <li><a href="{{ url_for('auth.signin') }}">Sign In</a></li>
