@@ -161,12 +161,12 @@ class News(db.Model):
                                  cascade='all, delete-orphan'
                                  )
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String, index=True)
-    published = db.Column(db.String)
+    title = db.Column(db.String(128), index=True)
+    published = db.Column(db.String(64))
     summary = db.Column(db.Text)
-    media_thumbnail = db.Column(db.String)
-    link = db.Column(db.String)
-    news_agency = db.Column(db.String)
+    media_thumbnail = db.Column(db.String(256))
+    link = db.Column(db.String(256))
+    news_agency = db.Column(db.String(64))
 
     def star_by(self, user):
         return self.favourite_by.filter_by(favourite_by_id=user.id).first() is not None
@@ -207,15 +207,15 @@ class News(db.Model):
 class Weather(db.Model):
     __tablename__ = "weather"
     id = db.Column(db.Integer, primary_key=True)
-    country = db.Column(db.String)
-    city = db.Column(db.String, index=True)
-    temperature = db.Column(db.String)
-    temp_min = db.Column(db.String)
-    temp_max = db.Column(db.String)
-    description = db.Column(db.String)
+    country = db.Column(db.String(64))
+    city = db.Column(db.String(64), index=True)
+    temperature = db.Column(db.String(64))
+    temp_min = db.Column(db.String(64))
+    temp_max = db.Column(db.String(64))
+    description = db.Column(db.String(64))
     humidity = db.Column(db.Integer)
-    sunset = db.Column(db.String)
-    sunrise = db.Column(db.String)
+    sunset = db.Column(db.String(64))
+    sunrise = db.Column(db.String(64))
     refresh_time = db.Column(db.DateTime, index=True)
 
     @staticmethod
