@@ -14,13 +14,11 @@
         <div class="input-field col s12">
           {{ form.about_me(placeholder="个人介绍") }}
         </div>
-        <div class="form-group required">
           <div class="input-field col s12" type="file">
             {{ form.avatar() }}
           </div>
-        </div>
-        <div class="form-group required">
-          {{ form.submit(class_="button button-pill button-action") }}
+        <div class="input-field col s12">
+          {{ form.submit(class_="btn waves-effect waves-light pink darken-4") }}
         </div>
       </form>
     </div>

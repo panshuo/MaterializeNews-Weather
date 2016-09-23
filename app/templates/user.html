@@ -4,9 +4,11 @@
   <div class="container">
     <div class="row">
       <div class="col s12">
-        <div class="col s12 m6">
-          <img class="responsive-img" src="/static/avatar/{{ user.avatar }}">
-        </div>
+        {% if user.avatar %}
+          <div class="col s12 m6">
+            <img class="responsive-img" src="/static/avatar/{{ user.avatar }}">
+          </div>
+        {% endif %}
         <div class="col s12 m6" style="text-align: center">
           <h3>{{ user.nickname or user.username or ('wb_' + user.oauth.weibo_user_id) }}</h3>
           {% if user.name or user.location %}
@@ -24,7 +26,6 @@
           <p>
             {% if user == current_user %}
               <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">编辑个人资料</a>
-              <a class="btn btn-default" href="{{ url }}">绑定新浪微博</a>
             {% endif %}
             {% if current_user.is_administrator() %}
               <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">编辑用户信息 (管理员)</a>
